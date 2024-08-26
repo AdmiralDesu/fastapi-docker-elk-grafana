@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "fastapi-docker-elk-grafana"
+version = "0.1.0"
+description = "fastapi-docker-elk-grafana boilerplate"
+authors = ["AdmiralDesu"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+wheel = "^0.44.0"
+fastapi = "^0.112.2"
+asyncpg = "^0.29.0"
+aioboto3 = "^13.1.1"
+pyyaml = "^6.0.2"
+sqlalchemy = "^2.0.32"
+ruff = "^0.6.2"
+redis = "^5.0.8"
+alembic = "^1.13.2"
+fastui = "^0.7.0"
+python-multipart = "^0.0.9"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
