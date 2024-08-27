@@ -7,11 +7,12 @@ services:
     env_file:
       - ./env_files/.env_minio.env
     entrypoint: ["/opt/app/entrypoint_minio.sh"]
-    command: server /data --json --console-address ':9090'
     ports:
       - "9000:9000"
       - "9001:9001"
     restart: always
+    volumes:
+      - ./volumes/minio:/opt/app/data
     networks:
       - api
 
@@ -46,6 +47,17 @@ services:
     depends_on:
       - postgres
 
+  redis:
+    container_name: redis
+    image: redis/redis-stack:latest
+    restart: always
+    env_file:
+      - ./env_files/.env_redis.env
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+    volumes:
+      - ./volumes/redis/:/data
 networks:
   api:
     driver: bridge
