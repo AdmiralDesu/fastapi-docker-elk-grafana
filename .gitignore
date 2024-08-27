@@ -168,3 +168,5 @@ cython_debug/
 !/Dockerfiles/volumes/postgres/.gitkeep
 /Dockerfiles/volumes/
 /.idea
+/poetry.lock
+/Dockerfiles/env_files/.env_redis.env
