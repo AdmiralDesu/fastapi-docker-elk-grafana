@@ -1,41 +1,38 @@
+name: fastapi-docker-elk-grafana
+
 services:
   minio:
-    container_name: "minio"
-    build:
-      context: .
-      dockerfile: Dockerfile.minio
+    container_name: minio
+    image: 'bitnami/minio:latest'
     env_file:
       - ./env_files/.env_minio.env
-    entrypoint: ["/opt/app/entrypoint_minio.sh"]
     ports:
-      - "9000:9000"
-      - "9001:9001"
-    restart: always
+      - '9000:9000'
+      - '9001:9001'
     volumes:
-      - ./volumes/minio:/opt/app/data
+      - ./volumes/minio:/bitnami/minio/data
     networks:
       - api
+    restart: always
 
   postgres:
+    container_name: postgres
     build:
       context: .
       dockerfile: Dockerfile.postgres
-    container_name: postgres
     env_file:
       - ./env_files/.env_postgres.env
-    volumes:
-       - ./volumes/postgres/data:/opt/app/data
     ports:
       - "5432:5432"
+    volumes:
+       - ./volumes/postgres/data:/opt/app/data
     networks:
       - api
     restart: always
-
 
   pgadmin:
     container_name: pgadmin4
     image: dpage/pgadmin4:8.11
-    restart: always
     env_file:
       - ./env_files/.env_pgadmin.env
     ports:
@@ -44,13 +41,13 @@ services:
       - ./volumes/pgadmin:/var/lib/pgadmin
     networks:
       - api
+    restart: always
     depends_on:
       - postgres
 
   redis:
     container_name: redis
     image: redis/redis-stack:latest
-    restart: always
     env_file:
       - ./env_files/.env_redis.env
     ports:
@@ -58,6 +55,10 @@ services:
       - "8001:8001"
     volumes:
       - ./volumes/redis/:/data
+    networks:
+      - api
+    restart: always
+
 networks:
   api:
     driver: bridge
