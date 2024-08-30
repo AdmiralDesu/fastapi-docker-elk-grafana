@@ -1,0 +1,7 @@
+FROM postgres:15-alpine
+
+RUN mkdir --parents /opt/app
+
+RUN mkdir --parents /opt/app/data
+
+COPY ./entrypoints/entrypoint_postgres.sh /opt/app/entrypoint_postgres.sh
