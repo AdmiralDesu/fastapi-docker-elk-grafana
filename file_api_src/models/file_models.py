@@ -14,11 +14,43 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from database import Base
 
-created_at = Annotated[datetime.datetime, mapped_column(server_default=text("now()"))]
+created_at = Annotated[datetime.datetime, mapped_column(server_default=text("now()"), index=True)]
 updated_at = Annotated[datetime.datetime, mapped_column(
         server_default=text("now()"),
         onupdate=datetime.datetime.now(),
     )]
+
+
+class Article(Base):
+    __tablename__ = 'articles'
+
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    title = Column(Text, nullable=False, index=True)
+    content = Column(Text, nullable=False, index=True)
+    folder_id: Mapped[int] = Column(Integer, ForeignKey('app.files_tree.id'), nullable=False)
+    icon: Mapped[str] = Column(ForeignKey("app.files.id"), nullable=True)
+    created_at: Mapped[created_at]
+    created_by: Mapped[str] = Column(Text, nullable=False, index=True)
+    updated_at: Mapped[updated_at]
+
+    __table_args__ = (
+        {"schema": "app"},
+    )
+
+
+class FileTree(Base):
+    __tablename__ = 'files_tree'
+
+    id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = Column(Text, index=True, nullable=False)
+    parent_id: Mapped[int] = Column(Integer, ForeignKey('app.files_tree.id'), nullable=False)
+    created_at: Mapped[created_at]
+    created_by: Mapped[str] = Column(Text, nullable=False, index=True)
+    updated_at: Mapped[updated_at]
+
+    __table_args__ = (
+        {"schema": "app"},
+    )
 
 
 class File(Base):
@@ -28,7 +60,9 @@ class File(Base):
     name: Mapped[str] = Column(Text, nullable=False, index=True)
     file_size: Mapped[int] = Column(Integer, nullable=False)
     hash: Mapped[str] = Column(ForeignKey("app.files_hashes.id"), nullable=False)
+    parent_id: Mapped[int] = Column(Integer, ForeignKey('app.files_tree.id'), nullable=False)
     created_at: Mapped[created_at]
+    created_by: Mapped[str] = Column(Text, nullable=False, index=True)
     updated_at: Mapped[updated_at]
 
     __table_args__ = (

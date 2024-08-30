@@ -8,7 +8,9 @@ from alembic import context
 
 from models.file_models import (
     File, # noqa
-    FileHash # noqa
+    FileHash, # noqa
+    FileTree, # noqa
+    Article # noqa
 ) # noqa
 from database import Base
 
@@ -68,7 +70,9 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata,
+            include_schemas=True
         )
 
         with context.begin_transaction():
