@@ -9,8 +9,8 @@ class FileCreationRequest(BaseModel):
     @classmethod
     def as_form(
             cls,
-            file: UploadFile = File(..., description="Binary data of file"),
-            folder_id: int = Form(..., description="ID of the folder"),
+            file: UploadFile = File(..., description="Данные о загруженном файле"),
+            folder_id: int = Form(..., description="ID папки, куда надо загрузить файл"),
     ):
         return cls(file=file, folder_id=folder_id)
 

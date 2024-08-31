@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from config import config
-from routers import file_router
+from routers import file_router, archive_router
 from contextlib import asynccontextmanager
 import aioboto3
 from botocore.exceptions import ClientError
@@ -40,5 +40,5 @@ app = FastAPI(
 
 
 app.include_router(file_router)
-
+app.include_router(archive_router)
 
