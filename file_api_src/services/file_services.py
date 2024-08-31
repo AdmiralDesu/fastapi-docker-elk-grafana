@@ -4,7 +4,7 @@ from typing import Union
 import aioboto3
 from fastapi import UploadFile, HTTPException, Response
 from fastapi.responses import FileResponse
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, update
 
 from config import config
 from database import get_async_session
@@ -223,4 +223,29 @@ async def get_archive(
     )
 
 
+async def rename_file_in_db(
+        file_key: str,
+        response: Response, # noqa
+        new_name: str
+) -> BaseResponse:
+    """
+    Изменяет имя файла на переданное
+    :param file_key: Ключ файла
+    :param new_name: Новое имя файла
+    :return:
+    """
+    try:
+        sessionmaker = await get_async_session()
+        async with sessionmaker() as session, session.begin():
+            await session.execute(
+                update(File)
+                .where(File.id == file_key)
+                .values(name=new_name)
+            )
+            await session.commit()
 
+        response.status_code = 200
+
+        return BaseResponse(message="Имя файла изменено")
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=f"При изменении имени файла произошла ошибка {err}")

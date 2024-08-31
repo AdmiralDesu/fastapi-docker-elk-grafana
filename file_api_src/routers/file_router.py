@@ -1,8 +1,7 @@
 """
 Роутер для работы с файлами
 """
-
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Response, Query
 
 from schemas import (
     FileCreationRequest,
@@ -11,9 +10,9 @@ from schemas import (
 )
 from services import (
     upload_file,
-    remove_file
+    remove_file,
+    rename_file_in_db
 )
-
 
 file_router = APIRouter(
     prefix="/files"
@@ -46,3 +45,22 @@ async def delete_file(
     :return: Сообщение об удалении файла или ошибка
     """
     return await remove_file(file_key=file_key, response=response)
+
+
+@file_router.put("/rename_file")
+async def rename_file(
+        response: Response, # noqa
+        file_key: str = Query(..., description="ID файла"),
+        new_name: str = Query(..., description="Новое имя для файла")
+):
+    """
+    Метод для изменения имени файла
+    :param file_key: ID файла
+    :param new_name: Новое имя файла
+    :return: Сообщение об изменении имени файла или ошибка
+    """
+    return await rename_file_in_db(
+        file_key=file_key,
+        response=response,
+        new_name=new_name
+    )

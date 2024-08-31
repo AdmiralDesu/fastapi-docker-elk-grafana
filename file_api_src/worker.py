@@ -48,6 +48,7 @@ def download_file_from_s3(
     """
     return download_file(file_id=file_id, file_hash=file_hash), file_name, archive_id
 
+
 @celery.task(name="archive_files")
 def archive_files(*args):
     archive_id = args[0][0][2]
@@ -73,7 +74,10 @@ def create_archive(
         folder_id: int,
         archive_id: str
 ):
-    with psycopg.connect(config.db_info.database_url.replace("+asyncpg", "")) as conn:
+
+    connection_string = config.db_info.database_url.replace("+asyncpg", "")
+
+    with psycopg.connect(connection_string) as conn:
         with conn.cursor() as cursor:
             cursor.execute(
                 f"""
@@ -87,7 +91,7 @@ def create_archive(
         group(download_file_from_s3.s(file_id, file_hash, file_name, archive_id) for file_id, file_hash, file_name in all_files)
     )(archive_files.s())
 
-    with psycopg.connect(config.db_info.database_url.replace("+asyncpg", "")) as conn:
+    with psycopg.connect(connection_string) as conn:
         with conn.cursor() as cursor:
             cursor.execute(
                 f"""
