@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class DBInfo(BaseModel):
-    database_url: str = os.environ['DATABASE_URL']
+    database_url: str = os.environ.get('DATABASE_URL', "postgresql+asyncpg://postgres:postgres@localhost:5432/postgres")
     pool_size: int = os.environ.get('POOL_SIZE', 10)
     max_overflow: int = os.environ.get('MAX_OVERFLOW', 10)
     echo: bool = os.environ.get('ECHO', False)

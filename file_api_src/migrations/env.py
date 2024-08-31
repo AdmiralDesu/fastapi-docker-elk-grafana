@@ -10,8 +10,9 @@ from models.file_models import (
     File, # noqa
     FileHash, # noqa
     FileTree, # noqa
-    Article # noqa
-) # noqa
+    Article, # noqa
+    ArchiveRequest # noqa
+)
 from database import Base
 
 config = context.config
