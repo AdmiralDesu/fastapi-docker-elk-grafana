@@ -19,6 +19,10 @@ redis = "^5.0.8"
 alembic = "^1.13.2"
 fastui = "^0.7.0"
 python-multipart = "^0.0.9"
+uvicorn = "^0.30.6"
+black = "^24.8.0"
+celery = "^5.4.0"
+psycopg = {extras = ["binary"], version = "^3.2.1"}
 
 
 [build-system]

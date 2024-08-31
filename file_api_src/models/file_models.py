@@ -19,6 +19,7 @@ updated_at = Annotated[datetime.datetime, mapped_column(
         server_default=text("now()"),
         onupdate=datetime.datetime.now(),
     )]
+finished_at = Annotated[datetime.datetime, mapped_column(nullable=True)]
 
 
 class Article(Base):
@@ -77,6 +78,22 @@ class FileHash(Base):
     id: Mapped[str] = Column(TEXT, primary_key=True, index=True, unique=True)
     mime_type: Mapped[str]
     created_at: Mapped[created_at]
+
+
+    __table_args__ = (
+        {"schema": "app"},
+    )
+
+
+class ArchiveRequest(Base):
+    __tablename__ = 'archive_requests'
+
+    id: Mapped[str] = Column(UUID, primary_key=True, index=True, server_default=text("gen_random_uuid()"), unique=True)
+    folder_id: Mapped[int] = Column(Integer, ForeignKey('app.files_tree.id'), nullable=False)
+    status: Mapped[str]
+    created_at: Mapped[created_at]
+    created_by: Mapped[str] = Column(Text, nullable=False, index=True)
+    finished_at: Mapped[finished_at]
 
 
     __table_args__ = (
