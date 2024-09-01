@@ -4,5 +4,6 @@ from services.file_services import (
     remove_file, # noqa
     push_archive, # noqa
     get_archive, # noqa
-    rename_file_in_db # noqa
+    rename_file_in_db, # noqa
+    download_file_from_s3 # noqa
 )

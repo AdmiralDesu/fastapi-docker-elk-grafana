@@ -17,6 +17,32 @@ services:
 
   postgres:
     container_name: postgres
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=100"
+      - "-c"
+      - "shared_buffers=1GB"
+      - "-c"
+      - "effective_cache_size=4GB"
+      - "-c"
+      - "random_page_cost=1.1"
+      - "-c"
+      - "temp_file_limit=10GB"
+      - "-c"
+      - "log_min_duration_statement=200ms"
+      - "-c"
+      - "lock_timeout=1s"
+      - "-c"
+      - "statement_timeout=60s"
+      - "-c"
+      - "shared_preload_libraries=pg_stat_statements"
+      - "-c"
+      - "pg_stat_statements.max=10000"
+      - "-c"
+      - "pg_stat_statements.track=all"
+      - "-c"
+      - "idle_session_timeout=5m"
     build:
       context: .
       dockerfile: Dockerfile.postgres
@@ -58,6 +84,18 @@ services:
     networks:
       - api
     restart: always
+
+  file_api:
+    container_name: file_api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ./env_files/.env_file_api.env
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./volumes
 
 networks:
   api:

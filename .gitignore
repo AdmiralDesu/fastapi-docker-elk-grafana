@@ -170,3 +170,4 @@ cython_debug/
 /.idea
 /poetry.lock
 /Dockerfiles/env_files/.env_redis.env
+/Dockerfiles/env_files/.env_file_api.env
