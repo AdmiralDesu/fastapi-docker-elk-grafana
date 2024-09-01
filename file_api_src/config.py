@@ -16,10 +16,10 @@ class APIInfo(BaseModel):
 
 
 class S3Info(BaseModel):
-    endpoint: str = os.environ.get('ENDPOINT', "http://127.0.0.1:9000")
-    bucket: str = os.environ.get('BUCKET', "files")
-    access_key: str = os.environ.get('ACCESS_KEY', "minioadmin")
-    secret_key: str = os.environ.get('SECRET_KEY', "minioadmin")
+    endpoint: str = os.environ.get('S3_ENDPOINT', "http://127.0.0.1:9000")
+    bucket: str = os.environ.get('S3_BUCKET', "files")
+    access_key: str = os.environ.get('S3_ACCESS_KEY', "minioadmin")
+    secret_key: str = os.environ.get('S3_SECRET_KEY', "minioadmin")
 
 class CacheInfo(BaseModel):
     redis_host: str = os.environ.get("REDIS_HOST", "127.0.0.1")
@@ -32,9 +32,8 @@ class Config(BaseModel):
     api_info: APIInfo = APIInfo()
     s3_info: S3Info = S3Info()
     cache_info: CacheInfo = CacheInfo()
-    file_chunk: int = os.environ.get("CHUNK_SIZE", 1024 * 16)
+    file_chunk: int = os.environ.get("CHUNK_SIZE", 1024 * 32)
 
 
 config = Config()
-
 
