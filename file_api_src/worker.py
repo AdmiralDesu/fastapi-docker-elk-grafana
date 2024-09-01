@@ -1,6 +1,8 @@
 """
 Модуль для описания работы селери
 """
+from datetime import datetime, timedelta
+import os
 import uuid
 from zipfile import ZipFile
 
@@ -20,18 +22,45 @@ celery = Celery(
 )
 
 
-@celery.task(name='put_file_to_cache')
+@celery.task(
+    name="clear_cache"
+)
+def clear_cache_file(
+        path_to_file: str
+):
+    if os.path.exists(path_to_file):
+        os.remove(path_to_file)
+
+
+
+@celery.task(
+    name='put_file_to_cache',
+    autoretry_for=(Exception,),
+    retry_kwargs={'max_retries': 5}
+)
 def put_file_to_cache(
         path_to_file: str,
-        file_hash: str
+        file_hash: str,
+        file_id: str,
+        file_name: str
 ):
     move_file_to_cache(
         path_to_file=path_to_file,
-        file_hash=file_hash
+        file_hash=file_hash,
+        file_id=file_id,
+        file_name=file_name
     )
 
+    six_hours_delta = datetime.now() + timedelta(hours=6)
 
-@celery.task(name="download_file_from_s3")
+    clear_cache_file.apply_async(path_to_file=f"./cache/{file_hash}", eta=six_hours_delta)
+
+
+@celery.task(
+    name="download_file_from_s3",
+    autoretry_for=(Exception,),
+    retry_kwargs={'max_retries': 5}
+)
 def download_file_from_s3(
         file_id: str,
         file_hash: str,
@@ -49,12 +78,15 @@ def download_file_from_s3(
     return download_file(file_id=file_id, file_hash=file_hash), file_name, archive_id
 
 
-@celery.task(name="archive_files")
+@celery.task(
+    name="archive_files",
+    autoretry_for=(Exception,),
+    retry_kwargs={'max_retries': 3}
+)
 def archive_files(*args):
     archive_id = args[0][0][2]
 
     path_to_archive = f"./temp/{archive_id}.zip"
-
 
     file_paths_and_names = [(x[0], x[1]) for x in args[0]]
 
@@ -65,11 +97,27 @@ def archive_files(*args):
                 name = f"{uuid.uuid4()}.{name}"
             inzip.write(file, arcname=name)
             computed_names.append(name)
+            os.remove(file)
+
+    connection_string = config.db_info.database_url.replace("+asyncpg", "")
+
+    with psycopg.connect(connection_string) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                f"""
+                update app.archive_requests set status = 'finished' where id = '{archive_id}'
+                """
+            )
+            conn.commit()
 
     return path_to_archive
 
 
-@celery.task(name='create_archive')
+@celery.task(
+    name='create_archive',
+    autoretry_for=(Exception,),
+    retry_kwargs={'max_retries': 3}
+)
 def create_archive(
         folder_id: int,
         archive_id: str
@@ -91,11 +139,3 @@ def create_archive(
         group(download_file_from_s3.s(file_id, file_hash, file_name, archive_id) for file_id, file_hash, file_name in all_files)
     )(archive_files.s())
 
-    with psycopg.connect(connection_string) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute(
-                f"""
-                update app.archive_requests set status = 'finished' where id = '{archive_id}'
-                """
-            )
-            conn.commit()

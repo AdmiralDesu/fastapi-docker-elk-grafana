@@ -1,7 +1,9 @@
 """
 Роутер для работы с файлами
 """
-from fastapi import APIRouter, Depends, Response, Query
+
+from fastapi import APIRouter, Depends, Response, Query, BackgroundTasks
+from starlette.responses import FileResponse
 
 from schemas import (
     FileCreationRequest,
@@ -11,7 +13,8 @@ from schemas import (
 from services import (
     upload_file,
     remove_file,
-    rename_file_in_db
+    rename_file_in_db,
+    download_file_from_s3
 )
 
 file_router = APIRouter(
@@ -64,3 +67,23 @@ async def rename_file(
         response=response,
         new_name=new_name
     )
+
+
+@file_router.get("/download_file")
+async def download_file(
+        response: Response, # noqa
+        background_tasks: BackgroundTasks, # noqa
+        file_id: str = Query(..., description="ID файла")
+) -> FileResponse:
+    """
+    Метод для скачивания файла
+    :param file_id: ID файла
+    :return: Файл или ошибка
+    """
+    return await download_file_from_s3(
+        file_id=file_id,
+        response=response,
+        background_tasks=background_tasks
+    )
+
+
