@@ -10,8 +10,8 @@ class DBInfo(BaseModel):
     echo: bool = os.environ.get('ECHO', False)
 
 class APIInfo(BaseModel):
-    host: str = os.environ.get("HOST", "localhost")
-    port: str = os.environ.get("PORT", 8001)
+    host: str = os.environ.get("HOST", "127.0.0.1")
+    port: int = int(os.environ.get("PORT", 8002))
     prefix: str = os.environ.get("PREFIX", "/file_api")
 
 

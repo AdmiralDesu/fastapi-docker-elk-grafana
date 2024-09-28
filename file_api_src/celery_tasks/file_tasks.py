@@ -3,6 +3,7 @@ import redis
 from config import config
 import boto3
 import json
+import shutil
 
 
 def move_file_to_cache(
@@ -17,7 +18,7 @@ def move_file_to_cache(
         r.close()
         return
     path_to_cache = f"./cache/{file_hash}"
-    os.rename(path_to_file, path_to_cache)
+    shutil.move(path_to_file, path_to_cache)
 
     file_info = {
         "path_to_cache": path_to_cache,

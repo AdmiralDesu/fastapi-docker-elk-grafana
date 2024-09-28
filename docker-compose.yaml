@@ -1,0 +1,142 @@
+name: fastapi-docker-elk-grafana
+
+services:
+  minio:
+    container_name: minio
+    image: 'bitnami/minio:latest'
+    env_file:
+      - ./Dockerfiles/env_files/.env_minio.env
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - ./Dockerfiles/volumes/minio:/bitnami/minio/data
+    networks:
+      - api
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
+
+  postgres:
+    container_name: postgres
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=100"
+      - "-c"
+      - "shared_buffers=1GB"
+      - "-c"
+      - "effective_cache_size=4GB"
+      - "-c"
+      - "random_page_cost=1.1"
+      - "-c"
+      - "temp_file_limit=10GB"
+      - "-c"
+      - "log_min_duration_statement=200ms"
+      - "-c"
+      - "lock_timeout=1s"
+      - "-c"
+      - "statement_timeout=60s"
+      - "-c"
+      - "shared_preload_libraries=pg_stat_statements"
+      - "-c"
+      - "pg_stat_statements.max=10000"
+      - "-c"
+      - "pg_stat_statements.track=all"
+      - "-c"
+      - "idle_session_timeout=10min"
+    build:
+      context: .
+      dockerfile: ./Dockerfiles/Dockerfile.postgres
+    env_file:
+      - ./Dockerfiles/env_files/.env_postgres.env
+    ports:
+      - "5432:5432"
+    volumes:
+       - ./Dockerfiles/volumes/postgres/data:/opt/app/data
+    networks:
+      - api
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
+
+  pgadmin:
+    container_name: pgadmin4
+    image: dpage/pgadmin4:8.11
+    env_file:
+      - ./Dockerfiles/env_files/.env_pgadmin.env
+    ports:
+      - "5050:80"
+    volumes:
+      - ./Dockerfiles/volumes/pgadmin:/var/lib/pgadmin
+    networks:
+      - api
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
+    depends_on:
+      - postgres
+
+  redis:
+    container_name: redis
+    image: redis/redis-stack:latest
+    env_file:
+      - ./Dockerfiles/env_files/.env_redis.env
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+    volumes:
+      - ./Dockerfiles/volumes/redis/:/data
+    networks:
+      - api
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
+
+  file_api:
+    container_name: file_api
+    entrypoint: ["/opt/app/entrypoint.sh"]
+    build:
+      context: .
+      dockerfile: ./Dockerfiles/Dockerfile.file_api
+    env_file: ./Dockerfiles/env_files/.env_file_api.env
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./Dockerfiles/volumes/file_api/cache:/opt/app/cache
+      - ./Dockerfiles/volumes/file_api/temp:/opt/app/temp
+      - ./Dockerfiles/volumes/file_api/logs:/opt/app/logs
+    networks:
+      - api
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
+    depends_on:
+      - redis
+      - minio
+      - postgres
+      - file_api_worker
+
+  file_api_worker:
+    container_name: file_api_worker
+    entrypoint: ["/opt/app/entrypoint.sh"]
+    build:
+      context: .
+      dockerfile: ./Dockerfiles/Dockerfile.file_api_worker
+    env_file: ./Dockerfiles/env_files/.env_file_api.env
+    volumes:
+      - ./Dockerfiles/volumes/file_api/cache:/opt/app/cache
+      - ./Dockerfiles/volumes/file_api/temp:/opt/app/temp
+      - ./Dockerfiles/volumes/file_api/logs:/opt/app/logs
+    networks:
+      - api
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
+    depends_on:
+      - redis
+      - minio
+
+networks:
+  api:
+    driver: bridge
