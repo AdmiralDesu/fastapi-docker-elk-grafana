@@ -18,6 +18,6 @@ RUN .venv/bin/pip install --no-cache-dir  -r /opt/app/requirements.txt
 
 COPY ./file_api_src/ /opt/app
 
-COPY ./Dockerfiles/entrypoints/entrypoint_file_api.sh /opt/app/entrypoint.sh
+COPY ./Dockerfiles/entrypoints/entrypoint_file_api_worker.sh /opt/app/entrypoint.sh
 
 RUN chmod +x /opt/app/entrypoint.sh
