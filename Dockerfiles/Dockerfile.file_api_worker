@@ -1,4 +1,4 @@
-FROM python:3.12-alphine
+FROM python:3.12-slim
 
 RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive \
@@ -10,18 +10,14 @@ RUN mkdir --parents /opt/app
 
 WORKDIR /opt/app
 
-COPY dependencies/file_api/requirements.txt .
+COPY ./Dockerfiles/dependencies/file_api/requirements.txt .
 
 RUN python -m venv .venv
+RUN .venv/bin/pip install wheel
 RUN .venv/bin/pip install --no-cache-dir  -r /opt/app/requirements.txt
 
-COPY ../file_api_src/ /opt/app
+COPY ./file_api_src/ /opt/app
 
-COPY ./entrypoints/entrypoint_file_api.sh /opt/app/entrypoint.sh
+COPY ./Dockerfiles/entrypoints/entrypoint_file_api_worker.sh /opt/app/entrypoint.sh
 
 RUN chmod +x /opt/app/entrypoint.sh
-
-
-
-
-
