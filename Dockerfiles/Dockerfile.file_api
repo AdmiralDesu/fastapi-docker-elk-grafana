@@ -16,7 +16,7 @@ RUN python -m venv .venv
 RUN .venv/bin/pip install wheel
 RUN .venv/bin/pip install --no-cache-dir  -r /opt/app/requirements.txt
 
-COPY ./file_api_src/ /opt/app
+COPY ./api_src/file_api_src/ /opt/app
 
 COPY ./Dockerfiles/entrypoints/entrypoint_file_api.sh /opt/app/entrypoint.sh
 
