@@ -6,14 +6,19 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from models.file_models import (
-    File, # noqa
-    FileHash, # noqa
-    FileTree, # noqa
-    Article, # noqa
-    ArchiveRequest # noqa
+
+from article_models import (
+    Article,
+    ArticleType
 )
-from database import Base
+
+from file_models import (
+FileTree,
+File,
+FileHash,
+ArchiveRequest
+)
+from base_model import Base
 
 config = context.config
 
