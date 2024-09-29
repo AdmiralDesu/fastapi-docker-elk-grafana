@@ -4,7 +4,7 @@ Trying to implement fastapi-docker-elk-grafana stack
 
 ## !!Перед использованием создайте папки volumes/pgadmin, volumes/postgres
 
-## Ссылка на приложения
+## Ссылки на приложения
 
 ### Minio
 http://localhost:9001/login
