@@ -1,5 +1,6 @@
 import json
 from hashlib import sha256
+from tkinter.font import names
 from typing import Union
 from uuid import uuid4
 
@@ -8,11 +9,12 @@ from fastapi import UploadFile, HTTPException, Response, BackgroundTasks
 from fastapi.responses import FileResponse
 from redis.asyncio import Redis
 from sqlalchemy import select, delete, update
+from pydantic import UUID4
 
 from config import config
 from database import get_async_session
 from models.file_models import FileHash, File, ArchiveRequest, FileTree
-from schemas import FileCreationRequest, BaseResponse, FileCreationResponse
+from schemas import FileCreationRequest, BaseResponse, FileCreationResponse, FolderCreationRequest
 from worker import create_archive, put_file_to_cache
 
 
@@ -36,7 +38,7 @@ async def add_file_to_db(
         filename: str,
         file_size: int,
         file_hash: str,
-        folder_id: int,
+        folder_id: str,
         created_by: str
 ):
     """
@@ -198,7 +200,7 @@ async def remove_file(
 
 
 async def push_archive(
-        folder_id: int,
+        folder_id: str,
         response: Response
 ) -> BaseResponse:
     archive_request = ArchiveRequest(
@@ -337,3 +339,26 @@ async def download_file_from_s3(
 
     except Exception as err:
         raise HTTPException(status_code=500, detail=f"При скачивании файла произошла ошибка {err}")
+
+
+async def create_new_folder(
+        response: Response,
+        folder_info: FolderCreationRequest
+):
+    try:
+        new_uuid = uuid4()
+        new_folder_obj = FileTree(
+            id=new_uuid,
+            name=folder_info.name,
+            parent_id=new_uuid if not folder_info.parent_id else folder_info.parent_id,
+            created_by=folder_info.created_by
+        )
+
+        sessionmaker = await get_async_session()
+        async with sessionmaker() as session, session.begin():
+            session.add(new_folder_obj)
+            await session.commit()
+
+        return FileCreationResponse(message="Папка успешно создана", file_key=str(new_folder_obj.id))
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=f"При создании папки произошла ошибка {err}")

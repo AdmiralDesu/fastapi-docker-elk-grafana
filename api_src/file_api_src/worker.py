@@ -119,7 +119,7 @@ def archive_files(*args):
     retry_kwargs={'max_retries': 3}
 )
 def create_archive(
-        folder_id: int,
+        folder_id: str,
         archive_id: str
 ):
 
