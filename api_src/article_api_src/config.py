@@ -7,9 +7,9 @@ class DBInfo(BaseModel):
     database_url: str = os.environ.get(
         "DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/postgres"
     )
-    pool_size: int = os.environ.get("POOL_SIZE", 10)
-    max_overflow: int = os.environ.get("MAX_OVERFLOW", 10)
-    echo: bool = os.environ.get("ECHO", False)
+    pool_size: int = int(os.environ.get("POOL_SIZE", 10))
+    max_overflow: int = int(os.environ.get("MAX_OVERFLOW", 10))
+    echo: bool = int(os.environ.get("ECHO", False))
 
 
 class APIInfo(BaseModel):
