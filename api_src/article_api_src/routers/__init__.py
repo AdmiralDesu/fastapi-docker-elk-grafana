@@ -1,1 +1,1 @@
-from routers.article_router import article_router
+from file_routers.article_router import article_router

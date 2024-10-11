@@ -13,8 +13,8 @@ from pydantic import UUID4
 
 from config import config
 from database import get_async_session
-from models.file_models import FileHash, File, ArchiveRequest, FileTree
-from schemas import FileCreationRequest, BaseResponse, FileCreationResponse, FolderCreationRequest
+from file_models.file_models import FileHash, File, ArchiveRequest, FileTree
+from file_schemas import FileCreationRequest, BaseResponse, FileCreationResponse, FolderCreationRequest
 from worker import create_archive, put_file_to_cache
 
 
@@ -218,7 +218,10 @@ async def push_archive(
 
     response.status_code = 201
 
-    return FileCreationResponse(message="Задача на создание архива создана", file_key=str(archive_request.id))
+    return FileCreationResponse(
+        message="Задача на создание архива создана",
+        file_key=str(archive_request.id)
+    )
 
 
 async def get_archive(

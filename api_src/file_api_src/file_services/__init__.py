@@ -1,4 +1,4 @@
-from services.file_services import (
+from file_services.file_services import (
     create_archive, # noqa
     upload_file, # noqa
     remove_file, # noqa

@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Response, Depends
-from sqlalchemy.util import await_only
 
 from models.article_models import Article, ArticleType  # type: ignore
 from schemas import (

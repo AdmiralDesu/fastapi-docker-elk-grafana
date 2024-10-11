@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Query, Response
-from services import  push_archive, get_archive
+from file_services import push_archive, get_archive
 
 
 archive_router = APIRouter(
@@ -10,7 +10,7 @@ archive_router = APIRouter(
 @archive_router.get("/create_archive")
 async def get_archive_of_folder(
         response: Response, # noqa
-        folder_id: int = Query(...,description="ID папки из которой надо собрать архив"),
+        folder_id: str = Query(...,description="ID папки из которой надо собрать архив"),
 ):
     """
     Метод для создания архива из папки
